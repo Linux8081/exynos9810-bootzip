@@ -1,0 +1,67 @@
+name: gavdoc38 Kernel CI
+on: [workflow_dispatch]
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Download kernels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          REPO="gavdoc38/android_kernel_samsung_exynos9810"
+          gh release download \
+          --repo $REPO \
+          --pattern "*starlte*" \
+          --dir downloads/starlte
+          gh release download \
+          --repo $REPO \
+          --pattern "*star2lte*" \
+          --dir downloads/star2lte
+          gh release download \
+          --repo $REPO \
+          --pattern "*crownlte*" \
+          --dir downloads/crownlte
+          
+      - name: Extract kernels
+        run: |
+          cd downloads/starlte
+          unzip -o "*starlte*.zip"
+          cd ../..
+          cd downloads/star2lte
+          unzip -o "*star2lte*.zip"
+          cd ../..
+          cd downloads/crownlte
+          unzip -o "*crownlte*.zip"
+          cd ../..
+
+      - name: Create ZIP
+        run: |
+          mkdir -p output
+          cp -r META-INF output/
+          mv downloads/starlte/boot.img ./output/starlte.img
+          mv downloads/star2lte/boot.img ./output/star2lte.img
+          mv downloads/crownlte/boot.img ./output/crownlte.img
+          cd output
+          zip -r ../exynos9810_gavdoc38-ksu.zip META-INF starlte.img star2lte.img crownlte.img
+          cd ..
+          md5sum exynos9810_gavdoc38-ksu.zip > exynos9810_gavdoc38-ksu.md5
+
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: exynos9810_gavdoc38-ksu
+          path: exynos9810_gavdoc38-ksu.*
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: gavdoc38-ksu_${{ github.run_id }}
+          files: |
+            exynos9810_gavdoc38-ksu.zip
+            exynos9810_gavdoc38-ksu.md5
