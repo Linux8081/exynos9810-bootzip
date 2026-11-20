@@ -1,0 +1,67 @@
+#!/sbin/sh
+
+BOOT="/dev/block/platform/11120000.ufs/by-name/BOOT"
+OUTFD="/proc/self/fd/$2"
+ZIP=$3
+
+device=$(getprop ro.product.device)
+soc=$(getprop ro.product.board)
+
+ui_print() {
+  echo "ui_print $1" > "$OUTFD";
+  echo "ui_print" > "$OUTFD";
+}
+
+error() {
+  ui_print "$1"
+}
+
+error_no_boot_image() {
+  error "Boot image for $device does not exist!"
+}
+
+ui_print "*******************************"
+ui_print "Exynos9810 boot image installer"
+ui_print "*******************************"
+
+ui_print "Cleaning up..."
+
+if echo $soc | grep 'exynos9810'; then
+  rm -rf /tmp/lineage
+  mkdir -p /tmp/lineage
+  cd /tmp/lineage
+  unzip -o "$ZIP"
+  rm -rf META-INF
+
+  if echo $device | grep 'starlte'; then
+      ui_print "Detected Galaxy S9"
+      if [ -e "starlte.img" ]; then
+        ui_print "Installing boot image..."
+        dd if=/tmp/lineage/starlte.img of=$BOOT bs=4096
+      else
+        error_no_boot_image
+        exit 1
+      fi
+  elif echo $device | grep 'star2lte'; then
+      ui_print "Detected Galaxy S9+"
+      if [ -e "star2lte.img" ]; then
+        ui_print "Installing boot image..."
+        dd if=/tmp/lineage/star2lte.img of=$BOOT bs=4096
+      else
+        error_no_boot_image
+        exit 1
+      fi
+  elif echo $device | grep 'crownlte'; then
+      ui_print "Detected Galaxy Note9"
+      if [ -e "crownlte.img" ]; then
+        ui_print "Installing boot image..."
+        dd if=/tmp/lineage/crownlte.img of=$BOOT bs=4096
+      else
+        error_no_boot_image
+        exit 1
+      fi
+  else
+      ui_print "Device is not supported!"
+      exit 1
+  fi
+fi
