@@ -24,7 +24,7 @@ ui_print "******************************"
 ui_print "LineageOS KSU kernel installer"
 ui_print "******************************"
 echo "ui_print Kernel by gavdoc38" > "$OUTFD"
-echo "ui_print Install script by Linux8081" > "$OUTFD"
+ui_print "Install script by Linux8081"
 
 ui_print "Cleaning up..."
 if echo $soc | grep 'exynos9810'; then
@@ -35,28 +35,31 @@ if echo $soc | grep 'exynos9810'; then
   rm -rf META-INF
 
   if echo $device | grep 'starlte'; then
-      ui_print "Detected Galaxy S9"
+      ui_print "Detected starlte"
       if [ -e "starlte.img" ]; then
         ui_print "Installing kernel..."
         dd if=/tmp/lineage/starlte.img of=$BOOT bs=4096
+        ui_print "Done!"
       else
         error_no_boot_image
         exit 1
       fi
   elif echo $device | grep 'star2lte'; then
-      ui_print "Detected Galaxy S9+"
+      ui_print "Detected star2lte"
       if [ -e "star2lte.img" ]; then
         ui_print "Installing kernel..."
         dd if=/tmp/lineage/star2lte.img of=$BOOT bs=4096
+        ui_print "Done!"
       else
         error_no_boot_image
         exit 1
       fi
   elif echo $device | grep 'crownlte'; then
-      ui_print "Detected Galaxy Note9"
+      ui_print "Detected crownlte"
       if [ -e "crownlte.img" ]; then
         ui_print "Installing kernel..."
         dd if=/tmp/lineage/crownlte.img of=$BOOT bs=4096
+        ui_print "Done!"
       else
         error_no_boot_image
         exit 1
