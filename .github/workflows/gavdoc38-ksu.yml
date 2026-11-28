@@ -40,28 +40,40 @@ jobs:
           unzip -o "*crownlte*.zip"
           cd ../..
 
-      - name: Create ZIP
+      - name: Create zip
         run: |
-          mkdir -p output
-          cp -r META-INF output/
-          mv downloads/starlte/boot.img ./output/starlte.img
-          mv downloads/star2lte/boot.img ./output/star2lte.img
-          mv downloads/crownlte/boot.img ./output/crownlte.img
-          cd output
+          mkdir -p out/META-INF/com/google/android/
+          cp templates/gavdoc38-ksu/update-binary out/META-INF/com/google/android/
+          mv downloads/starlte/boot.img ./out/starlte.img
+          mv downloads/star2lte/boot.img ./out/star2lte.img
+          mv downloads/crownlte/boot.img ./out/crownlte.img
+          cd out
           zip -r ../exynos9810_gavdoc38-ksu.zip META-INF starlte.img star2lte.img crownlte.img
           cd ..
-          md5sum exynos9810_gavdoc38-ksu.zip > exynos9810_gavdoc38-ksu.md5
 
-      - name: Upload ZIP
+      - name: Upload zip
         uses: actions/upload-artifact@v4
         with:
           name: exynos9810_gavdoc38-ksu
-          path: exynos9810_gavdoc38-ksu.*
 
-      - name: Create Release
+      - name: Get timestamp
+        id: date
+        run: |
+          echo "date=$(date +'%d.%m.%Y %H:%M')" >> $GITHUB_OUTPUT
+
+      - name: Get md5 hash
+        id: md5hash
+        run: |
+          md5sum exynos9810_gavdoc38-ksu.zip >> $GITHUB_OUTPUT
+
+      - name: Create release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: gavdoc38-ksu_${{ github.run_id }}
+          name: "gavdoc38 KernelSU ${{ steps.date.outputs.date }}"
+          body: |
+            ### KernelSU kernel for LineageOS 24.0 on Exynos 9810
+            - Kernel source: https://github.com/gavdoc38/android_kernel_samsung_exynos9810/releases
+            - MD5: `${{ steps.date.outputs.md5hash }}`
           files: |
             exynos9810_gavdoc38-ksu.zip
-            exynos9810_gavdoc38-ksu.md5
