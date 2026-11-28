@@ -54,7 +54,7 @@ jobs:
       - name: Upload zip
         uses: actions/upload-artifact@v4
         with:
-          name: exynos9810_gavdoc38-ksu
+          name: exynos9810_gavdoc38-ksu.zip
 
       - name: Get timestamp
         id: date
